@@ -1,1 +1,1 @@
-Utilizing the minimax algorithm in playing the classic game of Tic Tac Toe. 
+Utilizing the minimax algorithm in a Player vs Com game in the classic game Tic Tac Toe
