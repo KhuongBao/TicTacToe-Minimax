@@ -18,7 +18,7 @@ class TicTacToe:
         for row in board:
             if np.all(row == row[0]) and row[0] != '-':
                 return True
-
+ 
         for col in range(len(board)):
             if np.all(board[:, col] == board[0, col]) and board[0, col] != '-':
                 return True
@@ -34,11 +34,11 @@ class TicTacToe:
     def full(self, board):
         return np.all(board != '-')
     
-    def evaluate(self, board, depth, maximizing):
+    def evaluate(self, board, maximizing):
         if self.winner(board):
             if maximizing == True:
-                return depth
-            return -depth
+                return 1
+            return -1
 
         elif self.full(board):
             return 0
@@ -57,7 +57,8 @@ class TicTacToe:
 
     def minimax(self, board, depth, alpha, beta, maximizing):
         if depth == 0 or self.winner(board) == True or self.full(board) == True:
-            return self.evaluate(board, depth, maximizing)
+            #print(board, self.evaluate(board, depth, maximizing), self.winner(board), maximizing, end='\n\n')
+            return self.evaluate(board, not maximizing)
 
         if maximizing:
             maxEval = float('-inf')
@@ -88,13 +89,29 @@ class TicTacToe:
             return minEval
     
     def play(self):
-        while self.winner(self.board) == False or self.full(self.board) == False:
-            print(self.board)
+        print(self.board)
+        while self.winner(self.board) == False or not self.full(self.board) == False:
+
             self.player_move(self.board)
-            com = self.minimax(self.board, 10, float("-inf"), float("inf"), True)
-            print(com)
+            print(self.board)
+
+            scores = []
+            moves = []
+
+            for move in self.generate_possible_moves(self.board, "O"):
+                score = self.minimax(move, 10, float("-inf"), float("inf"), False)
+                scores.append(score)
+                moves.append(move)
+
+            best_move = moves[np.argmax(scores)]
+            self.board = best_move
+
+            print(f"BOT's move: {scores}")
+            print(self.board)
+
 
         print("Gameover!")
+
 
 
             
