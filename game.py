@@ -1,17 +1,34 @@
 import numpy as np
+from random import randint
 
 class TicTacToe:
 
-    def __init__(self):
-        self.board = np.full((3, 3), "-")
+    def __init__(self, player):
+        if player != "X" or player != "O":
+            raise ValueError("Player can only be 'X' or 'O'")
 
-    def player_move(self, board, move='X'):
+        self.board = np.full((3, 3), "-")
+        self.player = player
+        self.com = "O" if self.player == "X" else "X"
+
+        
+
+    def player_move(self, board, move):
         while True:
             position = input("Enter your move (row, col): ").split()
-            if int(position[0]) <= 3 and int(position[1]) <= 3:
-                if board[int(position[0]) - 1, int(position[1]) - 1] == '-':
-                    board[int(position[0]) - 1, int(position[1]) - 1] = move
-                    break
+
+            if len(position) == 2 and all(value.isdigit() for value in position):
+                if int(position[0]) <= 3 and int(position[1]) <= 3:
+                    if board[int(position[0]) - 1, int(position[1]) - 1] == '-':
+                        board[int(position[0]) - 1, int(position[1]) - 1] = move
+                        break
+                    else:
+                        print("Invalid move")
+                else:
+                    print("Invalid position")
+            else:
+                print("Invalid input")
+
 
 
     def winner(self, board):
@@ -57,14 +74,12 @@ class TicTacToe:
 
     def minimax(self, board, depth, alpha, beta, maximizing):
         if depth == 0 or self.winner(board) == True or self.full(board) == True:
-            #print(board, self.evaluate(board, depth, maximizing), self.winner(board), maximizing, end='\n\n')
             return self.evaluate(board, not maximizing)
 
         if maximizing:
             maxEval = float('-inf')
 
-            for possibility in self.generate_possible_moves(board, player = "O"):
-                #print(possibility, self.winner(possibility), self.evaluate(possibility, depth, maximizing=True), end='\n\n')
+            for possibility in self.generate_possible_moves(board, self.com):
                 eval = self.minimax(possibility, depth - 1, alpha, beta, maximizing=False)
                 maxEval = max(eval, maxEval)
                 alpha = max(alpha, eval)
@@ -77,8 +92,7 @@ class TicTacToe:
         else:
             minEval = float('inf')
             
-            for possibility in self.generate_possible_moves(board, player = "X"):
-                #print(possibility, self.winner(possibility), self.evaluate(possibility, depth, maximizing=False), end='\n\n')
+            for possibility in self.generate_possible_moves(board, self.player):
                 eval = self.minimax(possibility, depth - 1, alpha, beta, maximizing=True)
                 minEval = min(eval, minEval)
                 alpha = min(alpha, eval)
@@ -89,31 +103,53 @@ class TicTacToe:
             return minEval
     
     def play(self):
+
+        if self.com == "X":
+            self.board[randint(0, 2)][randint(0, 2)] = self.com
+
         print(self.board)
-        while self.winner(self.board) == False or not self.full(self.board) == False:
 
-            self.player_move(self.board)
-            print(self.board)
+        last_move = ''
+        while not self.winner(self.board):
+            if not self.full(self.board):
+                self.player_move(self.board, self.player)
+                print(self.board)
+                last_move = 'Player'
+            else: 
+                break
 
-            scores = []
-            moves = []
+            if not self.full(self.board):
+                scores = []
+                moves = []
+                for move in self.generate_possible_moves(self.board, self.com):
+                    score = self.minimax(move, 10, float("-inf"), float("inf"), False)
+                    scores.append(score)
+                    moves.append(move)
 
-            for move in self.generate_possible_moves(self.board, "O"):
-                score = self.minimax(move, 10, float("-inf"), float("inf"), False)
-                scores.append(score)
-                moves.append(move)
+                best_move = moves[np.argmax(scores)]
+                self.board = best_move
 
-            best_move = moves[np.argmax(scores)]
-            self.board = best_move
-
-            print(f"BOT's move: {scores}")
-            print(self.board)
-
-
-        print("Gameover!")
-
-
+                print(f"COM's move: {scores}")
+                print(self.board)
+                last_move = 'COM'
+            else:
+                break
+        
+        if self.winner(self.board):
+            print(f"Gameover! {last_move} wins!")
+        else:
+            print("Gameover! It's a tie!")
+        
+        replay = input("Play again? Yes or No: ").lower()
+        while True:
+            if replay == "yes":
+                self.__init__(self.player)
+                self.play()
+                break
+            elif replay == "no":
+                print("Thanks for playing!")
+                break
 
             
-game = TicTacToe()
+game = TicTacToe(player="X")
 game.play()
