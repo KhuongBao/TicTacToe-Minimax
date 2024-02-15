@@ -4,7 +4,7 @@ from random import randint
 class TicTacToe:
 
     def __init__(self, player):
-        if player != "X" or player != "O":
+        if player != "X" and player != "O":
             raise ValueError("Player can only be 'X' or 'O'")
 
         self.board = np.full((3, 3), "-")
