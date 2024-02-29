@@ -32,4 +32,4 @@ class TicTacToe:
         if depth == 0 or self.winner(position) == True or self.full(position) == True:
             return self.evaluate(position)
     
-
+#your mom fat
